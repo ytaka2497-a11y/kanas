@@ -1,0 +1,43 @@
+-- VehicleFly 0.6 minimal GUI for Infinite Yield
+local player = game.Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local button = Instance.new("TextButton", gui)
+button.Size = UDim2.new(0,100,0,40)
+button.Position = UDim2.new(0,20,0,200)
+button.Text = "Fly"
+button.BackgroundColor3 = Color3.fromRGB(0,170,255)
+button.TextScaled = true
+
+local enabled = false
+local flySpeed = 0.6
+
+local function toggleFly()
+    enabled = not enabled
+    local character = player.Character
+    if not character then return end
+    local vehicle = character:FindFirstChildWhichIsA("VehicleSeat") or character:FindFirstChild("Seat")
+    if not vehicle then return end
+
+    if enabled then
+        local bv = Instance.new("BodyVelocity")
+        bv.Name = "VehicleFlyBV"
+        bv.MaxForce = Vector3.new(1e5,1e5,1e5)
+        bv.Velocity = Vector3.new(0, flySpeed*50,0)
+        bv.Parent = vehicle
+    else
+        if vehicle:FindFirstChild("VehicleFlyBV") then
+            vehicle.VehicleFlyBV:Destroy()
+        end
+    end
+end
+
+button.MouseButton1Click:Connect(toggleFly)
+
+UserInputService.InputBegan:Connect(function(input, processed)
+    if processed then return end
+    if input.KeyCode == Enum.KeyCode.Q then
+        toggleFly()
+    end
+end)
